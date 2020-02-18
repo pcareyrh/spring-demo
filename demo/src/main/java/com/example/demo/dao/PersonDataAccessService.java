@@ -1,5 +1,6 @@
 package com.example.demo.dao;
 
+import java.sql.ResultSet;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -7,11 +8,21 @@ import java.util.UUID;
 
 import com.example.demo.model.Person;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.integration.IntegrationProperties.Jdbc;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository("postgres")
 public class PersonDataAccessService implements PersonDao {
 
+    private final JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    public PersonDataAccessService(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+    
     @Override
     public int insertPerson(final UUID id, final Person person) {
         // TODO Auto-generated method stub
@@ -20,7 +31,14 @@ public class PersonDataAccessService implements PersonDao {
 
     @Override
     public List<Person> selectAllPeople() {
-        return Arrays.asList(new Person(UUID.randomUUID(), "postgres"));
+        final String sql = "SELECT id, name FROM person";
+        List<Person> people = jdbcTemplate.query(sql, (ResultSet, i) -> {
+            UUID id = UUID.fromString(ResultSet.getString("id"));
+            String name = ResultSet.getString("name");
+            return new Person(id, name);
+        });
+        return people;
+      //  return Arrays.asList(new Person(UUID.randomUUID(), "postgres"));
 		//return List.class(new Person(UUID.randomUUID(), "postgres"));
     }
 
