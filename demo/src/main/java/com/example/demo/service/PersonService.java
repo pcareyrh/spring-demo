@@ -1,6 +1,8 @@
 package com.example.demo.service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import com.example.demo.dao.PersonDao;
 import com.example.demo.model.Person;
@@ -15,7 +17,7 @@ public class PersonService {
     private final PersonDao PersonDao;
 
     @Autowired
-    public PersonService(@Qualifier("fakeDao") PersonDao personDao) {
+    public PersonService(@Qualifier("postgres") PersonDao personDao) {
         this.PersonDao = personDao;
     }
 
@@ -25,5 +27,17 @@ public class PersonService {
 
     public List<Person> getAllPeople() {
         return PersonDao.selectAllPeople();
+    }
+
+    public Optional<Person> getPersonById(UUID id) {
+        return PersonDao.selectPersonById(id);
+    }
+
+    public int deletePerson(UUID id) {
+        return PersonDao.deletePersonById(id);
+    }
+    
+    public int updatePerson(UUID id, Person newperson) {
+        return PersonDao.updatePersonById(id, newperson);
     }
 }
